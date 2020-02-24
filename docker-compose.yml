@@ -1,0 +1,42 @@
+version: "3.7"
+
+services:
+  client:
+    container_name: client
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ".:/app"
+      - "/app/node_modules"
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=development
+
+  database:
+    image: "postgres:11.5"
+    container_name: "database_name"
+    networks:
+      - database-network
+    ports:
+      - 5432:5432
+    volumes:
+      - ./db/data:/var/lib/postgresql/data
+      - ./db/migration:/var/lib/postgresql/migration
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=database_name
+
+  admin:
+    image: "thajeztah/pgadmin4"
+    container_name: "database_name-admin"
+    networks:
+      - database-network
+    ports:
+      - 5050:5050
+
+networks:
+  database-network:
+    driver: bridge
